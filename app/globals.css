@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #0F0E17;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0F0E17;
+}
+::-webkit-scrollbar-thumb {
+  background: #6C3CE1;
+  border-radius: 3px;
+}
+
+.glass {
+  background: rgba(26, 25, 40, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(108, 60, 225, 0.2);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #6C3CE1, #00D4AA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #6C3CE1, #00D4AA);
+  transition: all 0.3s;
+}
+.gradient-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(108, 60, 225, 0.4);
+}
+
+.gradient-card {
+  background: linear-gradient(135deg, #6C3CE1 0%, #4A1FB8 50%, #00D4AA 100%);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}

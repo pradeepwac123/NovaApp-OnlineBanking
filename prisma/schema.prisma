@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String   @unique
+  phone        String   @unique
+  password     String
+  upiId        String   @unique
+  accountNo    String   @unique
+  balance      Float    @default(10000)
+  mpin         String   @default("")
+  dob          String?
+  aadhaarFront String?  @db.Text
+  aadhaarBack  String?  @db.Text
+  pan          String?  @db.Text
+  selfie       String?  @db.Text
+  kycStatus    String   @default("pending")
+  role         String   @default("user")
+  avatar       String?
+  blockedUntil DateTime?
+  createdAt    DateTime @default(now())
+
+  sentTransactions     Transaction[] @relation("Sender")
+  receivedTransactions Transaction[] @relation("Receiver")
+}
+
+model Transaction {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  amount     Float
+  note       String?
+  status     String   @default("success")
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("Sender", fields: [senderId], references: [id])
+  receiver User @relation("Receiver", fields: [receiverId], references: [id])
+}
