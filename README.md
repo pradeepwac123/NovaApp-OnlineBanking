@@ -63,3 +63,4 @@ For the QR code camera flow to work between desktop and phone:
 - Dashboard with balance, send money, transaction history
 - Admin panel with user management and fund control
 - PWA installable on mobile
+
