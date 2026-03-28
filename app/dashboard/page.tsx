@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,6 +15,7 @@ type UserProfile = {
   balance: number;
   kycStatus: string;
   selfie: string | null;
+  avatar: string | null;
   role: string;
   dob: string | null;
   blockedUntil: string | null;
@@ -34,7 +35,7 @@ type Tx = {
 };
 
 const formatInr = (amount: number) =>
-  `₹${amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  `\u20B9${amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function buildVirtualCard(user: UserProfile) {
   const seed = `${user.accountNo}${user.phone}`.replace(/\D/g, "");
@@ -70,6 +71,7 @@ export default function DashboardPage() {
     email: "",
     phone: "",
     dob: "",
+    avatar: "",
     password: "",
   });
 
@@ -86,6 +88,7 @@ export default function DashboardPage() {
           email: userData.user.email || "",
           phone: userData.user.phone || "",
           dob: userData.user.dob || "",
+          avatar: userData.user.avatar || "",
           password: "",
         });
       }
@@ -167,6 +170,39 @@ export default function DashboardPage() {
     }
   };
 
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setProfileError("");
+    setProfileMessage("");
+
+    if (!file.type.startsWith("image/")) {
+      setProfileError("Please choose a valid image file");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setProfileError("Profile photo must be 2MB or smaller");
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        const avatarData = reader.result;
+        setProfileForm((current) => ({ ...current, avatar: avatarData }));
+      } else {
+        setProfileError("Could not read selected image");
+      }
+    };
+    reader.onerror = () => setProfileError("Could not read selected image");
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  };
+
   const handleProfileUpdate = async () => {
     setProfileError("");
     setProfileMessage("");
@@ -186,7 +222,15 @@ export default function DashboardPage() {
         setProfileError(data.error || "Profile update failed");
       } else {
         setUser(data.user);
-        setProfileForm((current) => ({ ...current, password: "" }));
+        setProfileForm({
+          firstName: data.user.firstName || "",
+          lastName: data.user.lastName || "",
+          email: data.user.email || "",
+          phone: data.user.phone || "",
+          dob: data.user.dob || "",
+          avatar: data.user.avatar || "",
+          password: "",
+        });
         setProfileMessage("Profile updated successfully");
       }
     } catch {
@@ -204,6 +248,7 @@ export default function DashboardPage() {
     return <div className="min-h-screen bg-[#0a0a14] flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-2 border-[#00D4AA] border-t-transparent" /></div>;
   }
 
+  const profileAvatar = profileForm.avatar || user.avatar || user.selfie;
   const blocked = !!user.blockedUntil && new Date(user.blockedUntil) > new Date();
 
   if (blocked) {
@@ -261,7 +306,7 @@ export default function DashboardPage() {
 
             <button onClick={() => setProfileOpen(true)} className="flex items-center gap-3 self-start rounded-2xl border border-white/10 bg-[#111122] px-4 py-3 hover:border-[#6C3CE1]/30 md:self-auto">
               <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#6C3CE1] to-[#00D4AA] font-bold">
-                {user.selfie ? <img src={user.selfie} alt="" className="h-full w-full object-cover" /> : user.firstName[0]}
+                {profileAvatar ? <img src={profileAvatar} alt="" className="h-full w-full object-cover" /> : user.firstName[0]}
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
@@ -277,7 +322,7 @@ export default function DashboardPage() {
                   <div>
                     <p className="text-xs uppercase tracking-[0.25em] text-white/70">Total Balance</p>
                     <h2 className="mt-4 text-4xl font-bold">
-                      {showBalance ? formatInr(user.balance) : "₹••••••••"}
+                      {showBalance ? formatInr(user.balance) : "\u20B9********"}
                     </h2>
                   </div>
                   <button onClick={() => setShowBalance((value) => !value)} className="rounded-full border border-white/20 px-4 py-2 text-xs text-white/80">
@@ -430,13 +475,18 @@ export default function DashboardPage() {
               </div>
 
               <div className="mt-6 rounded-3xl border border-white/5 bg-[#111122] p-5">
-                <div className="mb-5 flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#6C3CE1] to-[#00D4AA] text-lg font-bold">
-                    {user.selfie ? <img src={user.selfie} alt="" className="h-full w-full object-cover" /> : user.firstName[0]}
+                <div className="mb-5 flex items-start gap-4">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#6C3CE1] to-[#00D4AA] text-lg font-bold">
+                    {profileAvatar ? <img src={profileAvatar} alt="" className="h-full w-full object-cover" /> : user.firstName[0]}
                   </div>
-                  <div>
-                    <p className="font-medium">{user.email}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{user.email}</p>
                     <p className="text-sm text-[#8d8dab]">{user.phone}</p>
+                    <label className="mt-3 inline-flex cursor-pointer items-center rounded-xl border border-white/10 bg-[#141425] px-3 py-2 text-xs font-medium text-white hover:border-[#6C3CE1]/35">
+                      Update Profile Photo
+                      <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleAvatarChange} />
+                    </label>
+                    <p className="mt-2 text-xs text-[#5a5a7a]">PNG, JPG or WEBP up to 2MB.</p>
                   </div>
                 </div>
 
@@ -504,4 +554,9 @@ function ProfileInput({
     </label>
   );
 }
+
+
+
+
+
 

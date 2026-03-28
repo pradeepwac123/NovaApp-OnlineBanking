@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
 import { authOptions } from "@/lib/auth";
@@ -8,7 +8,7 @@ export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { firstName, lastName, email, phone, dob, password } = await req.json();
+  const { firstName, lastName, email, phone, dob, avatar, password } = await req.json();
   if (!firstName || !lastName || !email || !phone || !password) {
     return NextResponse.json({ error: "All fields are required" }, { status: 400 });
   }
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest) {
 
   const updatedUser = await prisma.user.update({
     where: { id: userId },
-    data: { firstName, lastName, email, phone, dob: dob || null },
+    data: { firstName, lastName, email, phone, dob: dob || null, avatar: avatar || null },
     select: {
       firstName: true,
       lastName: true,
@@ -47,6 +47,7 @@ export async function PATCH(req: NextRequest) {
       balance: true,
       kycStatus: true,
       selfie: true,
+      avatar: true,
       role: true,
       dob: true,
       blockedUntil: true,
