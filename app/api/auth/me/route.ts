@@ -24,8 +24,17 @@ export async function GET() {
       dob: true,
       blockedUntil: true,
       createdAt: true,
+      mpin: true,
     },
   });
 
-  return NextResponse.json({ user });
+  return NextResponse.json({
+    user: user
+      ? {
+          ...user,
+          hasMpin: Boolean(user.mpin),
+          mpin: undefined,
+        }
+      : null,
+  });
 }

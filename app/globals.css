@@ -1,67 +1,180 @@
+/* ─── Google Fonts ────────────────────────────────────────────────────────────
+   Manrope: display and headline copy (weights 400–800)
+   Inter:   body, labels, and all UI chrome (weights 300–800)
+   Both loaded with display=swap to avoid invisible-text flash.
+   ─────────────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* ─── CSS Custom Properties ───────────────────────────────────────────────────
+   Tokens that cannot be expressed directly in tailwind.config (e.g. rgba
+   values, gradients) are declared here and referenced throughout the codebase.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Ghost border — used only where visual separation is semantically required.
+     Prefer surface color shifts for containment (see design system rules).     */
+  --outline-variant: rgba(65, 71, 85, 0.15);
 
+  /* Surface tint — primary blue at 10% opacity, for selected/active states    */
+  --surface-tint: rgba(0, 88, 188, 0.10);
+
+  /* Primary gradient — buttons and key CTAs                                   */
+  --gradient-primary: linear-gradient(135deg, #0058bc, #0070eb);
+
+  /* Text gradient — hero brand moments only                                   */
+  --gradient-text: linear-gradient(135deg, #0058bc, #0070eb);
+
+  /* Glassmorphism nav base                                                     */
+  --glass-bg: rgba(255, 255, 255, 0.80);
+  --glass-blur: 12px;
+}
+
+/* ─── Base Layer ──────────────────────────────────────────────────────────────
+   Sets the global canvas for the light banking theme.
+   ─────────────────────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background: #0F0E17;
-  color: #FFFFFF;
-  font-family: 'Inter', sans-serif;
+  /* Surface — the main app background (#f7f9fb).
+     Using the token name via CSS var keeps this in sync with Tailwind config. */
+  background-color: #f7f9fb;
+
+  /* on_surface — primary text, never pure black                               */
+  color: #191c1e;
+
+  /* Inter is the default body font; Manrope is opt-in via font-display class  */
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;      /* body-lg */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Scrollbar ───────────────────────────────────────────────────────────────
+   Subtle styling that respects the light palette.
+   ─────────────────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0F0E17;
+  /* Uses surface_container to sit a step above the page background            */
+  background: #eceef0;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6C3CE1;
-  border-radius: 3px;
+  /* Primary blue — connects the scroll indicator to the brand                 */
+  background: #0058bc;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0070eb;
 }
 
+/* ─── Glassmorphism — .glass ──────────────────────────────────────────────────
+   Navigation bar and floating overlays.
+
+   Design rules:
+   - Base: surface_container_lowest (#ffffff) at 80% opacity
+   - Blur: 12px (var --glass-blur) — DO NOT increase beyond 16px or it becomes
+     a performance liability on low-end devices
+   - NO 1px solid border: depth comes from blur + ambient shadow
+   ─────────────────────────────────────────────────────────────────────────── */
 .glass {
-  background: rgba(26, 25, 40, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(108, 60, 225, 0.2);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: 0 12px 32px rgba(25, 28, 30, 0.04); /* ambient shadow */
 }
 
+/* ─── Gradient Text — .gradient-text ─────────────────────────────────────────
+   Reserve for hero headlines and brand moments. Not for body copy.
+   ─────────────────────────────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #6C3CE1, #00D4AA);
+  background: var(--gradient-text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
+/* ─── Gradient Button — .gradient-btn ────────────────────────────────────────
+   Primary CTA button fill. Uses primary (#0058bc) → primary_container (#0070eb)
+   at 135deg. Transition uses transform + opacity (GPU-accelerated only).
+   ─────────────────────────────────────────────────────────────────────────── */
 .gradient-btn {
-  background: linear-gradient(135deg, #6C3CE1, #00D4AA);
-  transition: all 0.3s;
+  background: var(--gradient-primary);
+  color: #ffffff;
+  border-radius: 0.5rem; /* DEFAULT radius — no 90-degree corners             */
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .gradient-btn:hover {
-  opacity: 0.9;
+  opacity: 0.92;
   transform: translateY(-1px);
-  box-shadow: 0 8px 30px rgba(108, 60, 225, 0.4);
+  /* Elevated shadow on hover — connects depth to the primary brand color      */
+  box-shadow: 0 8px 24px rgba(0, 88, 188, 0.22);
+}
+.gradient-btn:active {
+  opacity: 1;
+  transform: translateY(0);
+  box-shadow: none;
+}
+.gradient-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 88, 188, 0.25); /* focus-ring token          */
 }
 
-.gradient-card {
-  background: linear-gradient(135deg, #6C3CE1 0%, #4A1FB8 50%, #00D4AA 100%);
+/* ─── Surface Utility Classes ─────────────────────────────────────────────────
+   Use these to express the surface containment hierarchy WITHOUT borders.
+   Order from lowest to highest elevation:
+     surface_container_lowest → surface_container_low → surface_container
+     → surface_container_high
+   ─────────────────────────────────────────────────────────────────────────── */
+.surface-lowest {
+  background-color: #ffffff;
+}
+.surface-low {
+  background-color: #f2f4f6;
+}
+.surface-base {
+  background-color: #eceef0;
+}
+.surface-high {
+  background-color: #e6e8ea;
 }
 
+/* ─── Ambient Shadow Utility — .shadow-ambient ────────────────────────────────
+   Resting-state card lift. Use instead of borders for containment.
+   ─────────────────────────────────────────────────────────────────────────── */
+.shadow-ambient {
+  box-shadow: 0 12px 32px rgba(25, 28, 30, 0.04);
+}
+
+/* ─── Elevated Shadow Utility — .shadow-elevated ──────────────────────────────
+   Hover or interactive focus state lift. Step up from ambient.
+   ─────────────────────────────────────────────────────────────────────────── */
+.shadow-elevated {
+  box-shadow: 0 8px 24px rgba(25, 28, 30, 0.06);
+}
+
+/* ─── Animations ──────────────────────────────────────────────────────────────
+   All animations use transform only — no layout-triggering properties.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Float — decorative hero illustrations, kept from original                   */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+  50%       { transform: translateY(-20px); }
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
+/* Confetti fall — success/celebration moments (e.g. payment confirmed)        */
 @keyframes confetti-fall {
-  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  0%   { transform: translateY(-100vh) rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(100vh)  rotate(720deg); opacity: 0; }
 }

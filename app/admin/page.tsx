@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -23,7 +23,7 @@ import {
   AdminTransaction,
   AdminCard,
   maskEmail,
-  maskPhone
+  maskPhone,
 } from "@/services/api/adminDashboard";
 
 type ConfirmState = {
@@ -66,7 +66,7 @@ export default function AdminPage() {
       description: `${user.name} will ${user.accountStatus === "Frozen" ? "regain" : "lose"} access after this operation.`,
       confirmLabel: user.accountStatus === "Frozen" ? "Restore Account" : "Freeze Account",
       confirmTone: "danger",
-      onConfirm: () => actions.freezeUser(user.id)
+      onConfirm: () => actions.freezeUser(user.id),
     });
   };
 
@@ -75,7 +75,7 @@ export default function AdminPage() {
       title: "Approve KYC?",
       description: `Approve identity verification for ${user.name} and move the account to verified status.`,
       confirmLabel: "Approve KYC",
-      onConfirm: () => actions.approveKycForUser(user.id)
+      onConfirm: () => actions.approveKycForUser(user.id),
     });
   };
 
@@ -85,7 +85,7 @@ export default function AdminPage() {
       description: `This will mark ${transaction.id} as reversed and should only be used for supervised recovery flows.`,
       confirmLabel: "Reverse Transaction",
       confirmTone: "danger",
-      onConfirm: () => actions.reverseTransaction(transaction.id)
+      onConfirm: () => actions.reverseTransaction(transaction.id),
     });
   };
 
@@ -94,7 +94,7 @@ export default function AdminPage() {
       title: "Flag transaction as suspicious?",
       description: `This will move ${transaction.id} into the fraud workflow for manual review.`,
       confirmLabel: "Flag Transaction",
-      onConfirm: () => actions.flagTransaction(transaction.id)
+      onConfirm: () => actions.flagTransaction(transaction.id),
     });
   };
 
@@ -104,7 +104,7 @@ export default function AdminPage() {
       description: `${card.userName}'s card status will change immediately across admin monitoring views.`,
       confirmLabel: card.status === "Blocked" ? "Unblock Card" : "Block Card",
       confirmTone: card.status === "Blocked" ? "primary" : "danger",
-      onConfirm: () => actions.toggleCardStatus(card.id)
+      onConfirm: () => actions.toggleCardStatus(card.id),
     });
   };
 
@@ -113,7 +113,7 @@ export default function AdminPage() {
       title: "Start investigation?",
       description: `This will move ${alert.transactionId} into an active investigation state for the risk team.`,
       confirmLabel: "Investigate",
-      onConfirm: () => actions.investigateAlert(alert.id)
+      onConfirm: () => actions.investigateAlert(alert.id),
     });
   };
 
@@ -123,7 +123,7 @@ export default function AdminPage() {
       description: `${alert.userName}'s account will be frozen from the fraud console.`,
       confirmLabel: "Block User",
       confirmTone: "danger",
-      onConfirm: () => actions.blockUserFromAlert(alert.userId)
+      onConfirm: () => actions.blockUserFromAlert(alert.userId),
     });
   };
 
@@ -132,7 +132,7 @@ export default function AdminPage() {
       title: "Approve KYC submission?",
       description: `${request.userName}'s documents will be marked approved.`,
       confirmLabel: "Approve Submission",
-      onConfirm: () => actions.approveKycRequest(request.id)
+      onConfirm: () => actions.approveKycRequest(request.id),
     });
   };
 
@@ -142,31 +142,56 @@ export default function AdminPage() {
       description: `${request.userName}'s documents will be rejected and require resubmission.`,
       confirmLabel: "Reject Submission",
       confirmTone: "danger",
-      onConfirm: () => actions.rejectKycRequest(request.id)
+      onConfirm: () => actions.rejectKycRequest(request.id),
     });
   };
 
   if (loading || !data) {
-    return <div className="min-h-screen bg-[#090914] flex items-center justify-center"><div className="h-12 w-12 animate-spin rounded-full border-2 border-[#6C3CE1] border-t-transparent" /></div>;
+    return (
+      // Loading state: light bg with primary spinner
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-[#090914] text-white">
-      <div className="flex min-h-screen flex-col md:flex-row">
+    // Root: light surface background — all panels layer tonally on top
+    <div className="min-h-screen bg-[#f3f6fb] px-4 py-5 text-[#172033] md:px-6 lg:px-8">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 opacity-80"
+        style={{
+          background:
+            "radial-gradient(circle at top left, rgba(42,123,255,0.14), transparent 26%), radial-gradient(circle at bottom right, rgba(43,87,195,0.08), transparent 24%)",
+        }}
+      />
+      <div className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1500px] flex-col gap-6 md:flex-row">
         <AdminSidebar active={activeNav} onChange={setActiveNav} viewerRole={viewerRole} />
 
-        <main className="flex-1 p-5 md:p-8">
-          <div className="mb-6 flex flex-col gap-4 border-b border-white/6 pb-6 md:flex-row md:items-end md:justify-between">
+        <main className="flex-1">
+          <div className="rounded-[2rem] bg-white/95 p-6 shadow-[0_24px_60px_rgba(18,38,63,0.07)] md:p-8">
+          {/* Page header — spacing separates from content, no divider line */}
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-[#8f8fae]">Digital Bank Operations</p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">Production Admin Dashboard</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#7b7b99]">
-                Monitor users, transactions, cards, fraud signals, analytics, and KYC queues from a single secure operations console.
+              <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
+                Digital Bank Operations
+              </p>
+              <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-slate-900">
+                Production Admin Dashboard
+              </h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-500">
+                Monitor users, transactions, cards, fraud signals, analytics, and KYC queues from a
+                single secure operations console.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-[#111122] px-4 py-3 text-sm text-[#c8c8da]">
-              <p>{actorName}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[#8f8fae]">{viewerRole === "super_admin" ? "Super Admin" : "Admin"}</p>
+
+            {/* Operator identity chip — surface-container-low tonal card */}
+            <div className="rounded-[1.4rem] bg-[#f5f8ff] px-5 py-4 text-sm shadow-[0_10px_30px_rgba(18,38,63,0.05)]">
+              <p className="font-semibold text-slate-900">{actorName}</p>
+              <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
+                {viewerRole === "super_admin" ? "Super Admin" : "Admin"}
+              </p>
             </div>
           </div>
 
@@ -210,15 +235,28 @@ export default function AdminPage() {
             )}
 
             {activeNav === "cards" && (
-              <CardManagementPanel cards={data.cards} viewerRole={viewerRole} onToggleBlock={requestCardToggle} />
+              <CardManagementPanel
+                cards={data.cards}
+                viewerRole={viewerRole}
+                onToggleBlock={requestCardToggle}
+              />
             )}
 
             {activeNav === "kyc" && (
-              <KycVerificationPanel requests={data.kycRequests} onApprove={requestApproveKycSubmission} onReject={requestRejectKycSubmission} />
+              <KycVerificationPanel
+                requests={data.kycRequests}
+                onApprove={requestApproveKycSubmission}
+                onReject={requestRejectKycSubmission}
+              />
             )}
 
             {activeNav === "fraud" && (
-              <FraudDetectionPanel alerts={data.fraudAlerts} viewerRole={viewerRole} onInvestigate={requestInvestigate} onBlockUser={requestBlockUser} />
+              <FraudDetectionPanel
+                alerts={data.fraudAlerts}
+                viewerRole={viewerRole}
+                onInvestigate={requestInvestigate}
+                onBlockUser={requestBlockUser}
+              />
             )}
 
             {activeNav === "analytics" && (
@@ -236,9 +274,11 @@ export default function AdminPage() {
               </div>
             )}
           </div>
+          </div>
         </main>
       </div>
 
+      {/* Confirm action modal */}
       <Modal
         open={!!confirmState}
         title={confirmState?.title || "Confirm action"}
@@ -246,21 +286,30 @@ export default function AdminPage() {
         confirmLabel={confirmState?.confirmLabel}
         confirmTone={confirmState?.confirmTone}
         onClose={() => setConfirmState(null)}
-        onConfirm={confirmState ? () => {
-          confirmState.onConfirm();
-          setConfirmState(null);
-        } : undefined}
+        onConfirm={
+          confirmState
+            ? () => {
+                confirmState.onConfirm();
+                setConfirmState(null);
+              }
+            : undefined
+        }
       />
 
-      <Modal open={!!viewedUser} title={viewedUser?.name || "User details"} onClose={() => setViewedUser(null)}>
+      {/* User detail modal */}
+      <Modal
+        open={!!viewedUser}
+        title={viewedUser?.name || "User details"}
+        onClose={() => setViewedUser(null)}
+      >
         {viewedUser && (
-          <div className="grid gap-3 rounded-2xl border border-white/6 bg-[#0d0d18] p-4 text-sm text-[#c8c8da]">
-            <Detail label="Phone" value={maskPhone(viewedUser.phone)} />
-            <Detail label="Email" value={maskEmail(viewedUser.email)} />
-            <Detail label="KYC Status" value={viewedUser.kycStatus} />
+          <div className="grid gap-3">
+            <Detail label="Phone"          value={maskPhone(viewedUser.phone)} />
+            <Detail label="Email"          value={maskEmail(viewedUser.email)} />
+            <Detail label="KYC Status"     value={viewedUser.kycStatus} />
             <Detail label="Account Status" value={viewedUser.accountStatus} />
-            <Detail label="Role" value={viewedUser.role} />
-            <Detail label="Joined" value={new Date(viewedUser.joinedAt).toLocaleString("en-IN")} />
+            <Detail label="Role"           value={viewedUser.role} />
+            <Detail label="Joined"         value={new Date(viewedUser.joinedAt).toLocaleString("en-IN")} />
           </div>
         )}
       </Modal>
@@ -270,10 +319,10 @@ export default function AdminPage() {
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-white/6 bg-white/[0.02] px-4 py-3">
-      <span className="text-[#8f8fae]">{label}</span>
-      <span>{value}</span>
+    // Detail row: surface-container-low tonal tile — no border, spacing is the separator
+    <div className="flex items-center justify-between rounded-sm bg-surface-container-low px-4 py-3 text-sm">
+      <span className="text-on-surface-variant">{label}</span>
+      <span className="font-medium text-on-surface">{value}</span>
     </div>
   );
 }
-

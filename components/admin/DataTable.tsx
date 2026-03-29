@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ReactNode } from "react";
 
@@ -18,31 +18,42 @@ type DataTableProps<T> = {
 
 export function DataTable<T>({ columns, rows, rowKey, emptyState = "No records found." }: DataTableProps<T>) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-white/6 bg-[#10101c]">
+    // Outer container uses surface-container-lowest — sits on bg-surface so no border needed
+    <div className="overflow-hidden rounded-sm bg-surface-container-lowest">
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
-          <thead className="bg-white/[0.03] text-[#8f8fae]">
+          {/* Header: one step higher on the surface hierarchy to distinguish from data rows */}
+          <thead className="bg-surface-container-low text-on-surface-variant">
             <tr>
               {columns.map((column) => (
-                <th key={column.key} className={`px-4 py-3 text-left font-medium ${column.className || ""}`}>
+                <th
+                  key={column.key}
+                  scope="col"
+                  className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em] ${column.className || ""}`}
+                >
                   {column.header}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={rowKey(row)} className="border-t border-white/[0.05]">
+            {rows.map((row, index) => (
+              // Alternating rows: even rows stay on surface-container-lowest (white),
+              // odd rows step up to surface-container-low — no dividers needed
+              <tr
+                key={rowKey(row)}
+                className={index % 2 === 0 ? "bg-surface-container-lowest" : "bg-surface-container-low"}
+              >
                 {columns.map((column) => (
-                  <td key={column.key} className={`px-4 py-4 align-top text-white ${column.className || ""}`}>
+                  <td key={column.key} className={`px-4 py-4 align-top text-on-surface ${column.className || ""}`}>
                     {column.render(row)}
                   </td>
                 ))}
               </tr>
             ))}
             {rows.length === 0 && (
-              <tr>
-                <td colSpan={columns.length} className="px-4 py-12 text-center text-[#737390]">
+              <tr className="bg-surface-container-lowest">
+                <td colSpan={columns.length} className="px-4 py-12 text-center text-on-surface-variant">
                   {emptyState}
                 </td>
               </tr>
@@ -53,4 +64,3 @@ export function DataTable<T>({ columns, rows, rowKey, emptyState = "No records f
     </div>
   );
 }
-

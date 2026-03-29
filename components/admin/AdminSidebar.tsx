@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { AdminRole } from "@/services/api/adminDashboard";
 
@@ -12,15 +12,15 @@ export type AdminNavKey =
   | "analytics"
   | "settings";
 
-const navItems: { key: AdminNavKey; label: string }[] = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "users", label: "Users" },
-  { key: "transactions", label: "Transactions" },
-  { key: "cards", label: "Cards" },
-  { key: "kyc", label: "KYC" },
-  { key: "fraud", label: "Fraud" },
-  { key: "analytics", label: "Analytics" },
-  { key: "settings", label: "Settings" }
+const navItems: { key: AdminNavKey; label: string; icon: string }[] = [
+  { key: "dashboard", label: "Dashboard", icon: "\u25A6" },
+  { key: "users", label: "Users", icon: "\u25CB" },
+  { key: "transactions", label: "Transactions", icon: "\u2194" },
+  { key: "cards", label: "Cards", icon: "\u25AD" },
+  { key: "kyc", label: "KYC", icon: "\u2713" },
+  { key: "fraud", label: "Fraud", icon: "\u2691" },
+  { key: "analytics", label: "Analytics", icon: "\u2197" },
+  { key: "settings", label: "Settings", icon: "\u2699" },
 ];
 
 type AdminSidebarProps = {
@@ -31,45 +31,52 @@ type AdminSidebarProps = {
 
 export function AdminSidebar({ active, onChange, viewerRole }: AdminSidebarProps) {
   return (
-    <aside className="w-full border-b border-white/6 bg-[#0d0d18] p-5 md:w-72 md:border-b-0 md:border-r md:p-6">
+    <aside className="w-full rounded-[2rem] bg-white/95 p-5 shadow-[0_24px_60px_rgba(18,38,63,0.07)] md:w-72 md:p-6 md:sticky md:top-5 md:h-[calc(100vh-2.5rem)] md:overflow-hidden">
+      <div className="flex h-full flex-col">
       <div className="mb-10">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#6C3CE1] to-[#00D4AA] font-bold text-white">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1b76ff] to-[#5da8ff] text-lg font-bold text-white">
             N
           </div>
           <div>
-            <p className="text-2xl font-semibold tracking-tight text-white">NovaPay</p>
-            <p className="text-xs uppercase tracking-[0.32em] text-[#8181a4]">Admin Control Center</p>
+            <p className="font-display text-2xl font-bold tracking-tight text-[#2372ff]">NovaPay</p>
+            <p className="text-xs uppercase tracking-[0.32em] text-slate-400">Admin Control Center</p>
           </div>
         </div>
       </div>
 
-      <div className="mb-6 rounded-3xl border border-white/6 bg-[#111122] p-4">
-        <p className="text-[11px] uppercase tracking-[0.3em] text-[#8f8fae]">Signed in as</p>
-        <p className="mt-3 text-lg font-medium text-white">{viewerRole === "super_admin" ? "Super Admin" : "Admin"}</p>
-        <p className="mt-1 text-sm text-[#7a7a99]">
+      <div className="mb-6 rounded-[1.6rem] bg-[#f5f8ff] p-4">
+        <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">Signed in as</p>
+        <p className="mt-3 text-lg font-semibold text-slate-900">
+          {viewerRole === "super_admin" ? "Super Admin" : "Admin"}
+        </p>
+        <p className="mt-1 text-sm leading-6 text-slate-500">
           {viewerRole === "super_admin"
             ? "Can reverse transactions and manage card controls."
             : "Can monitor operations, users, and KYC queues."}
         </p>
       </div>
 
-      <nav className="space-y-2">
+      <nav aria-label="Admin navigation" className="space-y-2 md:min-h-0 md:flex-1 md:overflow-y-auto md:pr-1">
         {navItems.map((item) => (
           <button
             key={item.key}
             onClick={() => onChange(item.key)}
-            className={`w-full rounded-2xl px-4 py-3 text-left text-sm transition ${
+            aria-current={active === item.key ? "page" : undefined}
+            className={`flex w-full items-center gap-3 rounded-[1.2rem] px-4 py-3 text-left text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2372ff] ${
               active === item.key
-                ? "border border-[#6C3CE1]/30 bg-gradient-to-r from-[#6C3CE1]/18 to-[#00D4AA]/10 text-white"
-                : "border border-transparent text-[#8d8dad] hover:border-white/10 hover:bg-white/[0.03] hover:text-white"
+                ? "bg-[#eef4ff] text-[#2372ff]"
+                : "text-slate-500 hover:bg-[#f6f8fc] hover:text-slate-800"
             }`}
           >
+            <span className="w-4 text-center text-base leading-none" aria-hidden="true">
+              {item.icon}
+            </span>
             {item.label}
           </button>
         ))}
       </nav>
+      </div>
     </aside>
   );
 }
-

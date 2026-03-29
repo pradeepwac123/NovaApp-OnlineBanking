@@ -8,7 +8,16 @@ export async function GET(req: NextRequest) {
   const user = await prisma.user.findFirst({
     where: {
       AND: [
-        { OR: [{ phone: q }, { upiId: q }] },
+        {
+          OR: [
+            { phone: q },
+            { upiId: q },
+            { email: q },
+            { accountNo: q },
+            { firstName: { contains: q, mode: "insensitive" } },
+            { lastName: { contains: q, mode: "insensitive" } },
+          ],
+        },
         {
           OR: [
             { blockedUntil: null },

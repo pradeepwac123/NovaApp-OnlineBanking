@@ -395,7 +395,7 @@ export async function fetchAdminDashboard(): Promise<AdminDashboardData> {
 }
 
 export function formatCurrencyInr(amount: number) {
-  return `?${amount.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+  return `\u20B9${amount.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 }
 
 export function maskPhone(phone: string) {

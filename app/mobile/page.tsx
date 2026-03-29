@@ -5,7 +5,14 @@ import { useSearchParams } from "next/navigation";
 
 export default function MobileCapturePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-darkbg flex items-center justify-center"><div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+    // Loading fallback: light surface bg with primary spinner
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-surface flex items-center justify-center">
+          <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
       <MobileCapturePageContent />
     </Suspense>
   );
@@ -50,7 +57,9 @@ function MobileCapturePageContent() {
   };
 
   useEffect(() => {
-    return () => { stopStream(streamRef.current); };
+    return () => {
+      stopStream(streamRef.current);
+    };
   }, []);
 
   const startCamera = async () => {
@@ -108,51 +117,94 @@ function MobileCapturePageContent() {
     }
   };
 
+  // Success screen
   if (sent) {
     return (
-      <div className="min-h-screen bg-darkbg flex items-center justify-center p-4">
+      <div className="min-h-screen bg-surface flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-2xl font-bold mb-2">Photo received on desktop</h1>
-          <p className="text-muted">You can close this page now.</p>
+          <div className="text-6xl mb-4">&#10003;</div>
+          <h1 className="text-2xl font-bold mb-2 text-on-surface">Photo received on desktop</h1>
+          <p className="text-on-surface-variant">You can close this page now.</p>
         </div>
       </div>
     );
   }
 
-  const docLabel = doc === "aadhaar_front" ? "Aadhaar Front" : doc === "aadhaar_back" ? "Aadhaar Back" : doc === "pan" ? "PAN Card" : "Selfie";
+  const docLabel =
+    doc === "aadhaar_front" ? "Aadhaar Front"
+    : doc === "aadhaar_back" ? "Aadhaar Back"
+    : doc === "pan"          ? "PAN Card"
+    : "Selfie";
 
   return (
-    <div className="min-h-screen bg-darkbg flex flex-col items-center justify-center p-4">
-      <h1 className="text-xl font-bold mb-1 gradient-text">NovaPay</h1>
-      <p className="text-muted text-sm mb-4">Capture: {docLabel}</p>
+    <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-4">
+      {/* Brand */}
+      <h1 className="text-xl font-bold mb-1 text-primary">NovaPay</h1>
+      <p className="text-on-surface-variant text-sm mb-4">Capture: {docLabel}</p>
 
-      {error && <p className="text-error text-sm mb-4">{error}</p>}
+      {/* Error message */}
+      {error && <p className="text-error text-sm mb-4" role="alert">{error}</p>}
 
+      {/* Camera / preview area */}
       <div className="relative w-full max-w-sm aspect-[4/3]">
         {!captured ? (
           <>
-            <video ref={videoRef} autoPlay playsInline muted className={`w-full h-full object-cover ${isSelfie ? "rounded-full" : "rounded-2xl"} border-2 border-primary/40`} />
-            {isSelfie && <div className="absolute inset-0 rounded-full border-4 border-dashed border-primary/30 pointer-events-none" />}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`w-full h-full object-cover ${isSelfie ? "rounded-full" : "rounded-sm"} ring-2 ring-primary/40`}
+            />
+            {isSelfie && (
+              <div className="absolute inset-0 rounded-full border-4 border-dashed border-primary/30 pointer-events-none" />
+            )}
           </>
         ) : (
-          <img src={captured} alt="Captured" className={`w-full h-full object-cover ${isSelfie ? "rounded-full" : "rounded-2xl"} border-2 border-success`} />
+          // Captured preview — success ring
+          <img
+            src={captured}
+            alt="Captured"
+            className={`w-full h-full object-cover ${isSelfie ? "rounded-full" : "rounded-sm"} ring-2 ring-success`}
+          />
         )}
       </div>
 
+      {/* Controls */}
       <div className="flex gap-4 mt-6">
         {!captured ? (
           <>
             {!cameraStarted ? (
-              <button onClick={startCamera} className="gradient-btn px-8 py-3 rounded-xl font-semibold text-white">Start Camera</button>
+              <button
+                onClick={startCamera}
+                className="gradient-btn px-8 py-3 rounded-sm font-semibold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                Start Camera
+              </button>
             ) : (
-              <button onClick={capture} className="gradient-btn px-8 py-3 rounded-xl font-semibold text-white">Capture Photo</button>
+              <button
+                onClick={capture}
+                className="gradient-btn px-8 py-3 rounded-sm font-semibold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                Capture Photo
+              </button>
             )}
           </>
         ) : (
           <>
-            <button onClick={retake} className="px-6 py-3 rounded-xl border border-white/10 text-muted hover:text-white transition">Retake</button>
-            <button onClick={send} className="gradient-btn px-8 py-3 rounded-xl font-semibold text-white">Send</button>
+            {/* Secondary: surface-container-high tonal button */}
+            <button
+              onClick={retake}
+              className="px-6 py-3 rounded-sm bg-surface-container-high text-on-surface-variant font-medium transition-colors hover:bg-surface-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              Retake
+            </button>
+            <button
+              onClick={send}
+              className="gradient-btn px-8 py-3 rounded-sm font-semibold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              Send
+            </button>
           </>
         )}
       </div>

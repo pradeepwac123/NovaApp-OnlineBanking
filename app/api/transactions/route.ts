@@ -11,8 +11,8 @@ export async function GET() {
   const transactions = await prisma.transaction.findMany({
     where: { OR: [{ senderId: userId }, { receiverId: userId }] },
     include: {
-      sender: { select: { firstName: true, lastName: true } },
-      receiver: { select: { firstName: true, lastName: true } },
+      sender: { select: { firstName: true, lastName: true, upiId: true, phone: true } },
+      receiver: { select: { firstName: true, lastName: true, upiId: true, phone: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 20,

@@ -5,7 +5,14 @@ import { useSearchParams } from "next/navigation";
 
 export default function MobileStreamPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0a0a14] flex items-center justify-center"><div className="w-10 h-10 border-2 border-[#6C3CE1] border-t-transparent rounded-full animate-spin" /></div>}>
+    // Loading fallback: light surface bg
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-surface flex items-center justify-center">
+          <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
       <MobileStreamPageContent />
     </Suspense>
   );
@@ -79,7 +86,7 @@ function MobileStreamPageContent() {
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: { ideal: "user" },
-            width: { ideal: 640 },
+            width:  { ideal: 640 },
             height: { ideal: 480 },
           },
           audio: false,
@@ -92,7 +99,7 @@ function MobileStreamPageContent() {
 
       const pc = new RTCPeerConnection({
         iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun.l.google.com:19302"  },
           { urls: "stun:stun1.l.google.com:19302" },
         ],
       });
@@ -111,7 +118,7 @@ function MobileStreamPageContent() {
       };
 
       pc.onconnectionstatechange = () => {
-        if (pc.connectionState === "connected") setStatus("streaming");
+        if (pc.connectionState === "connected")   setStatus("streaming");
         if (pc.connectionState === "disconnected" || pc.connectionState === "failed") setStatus("done");
       };
 
@@ -152,7 +159,7 @@ function MobileStreamPageContent() {
     }
   };
 
-  // ─── Fallback: file/camera input capture and upload via image store ───
+  // Fallback: file/camera input capture
   const handleFallbackCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -177,10 +184,12 @@ function MobileStreamPageContent() {
   // ─── SENT SCREEN ───
   if (sent) {
     return (
-      <div className="min-h-screen bg-[#0a0a14] flex flex-col items-center justify-center p-6 text-white text-center">
-        <div className="text-6xl mb-4">✅</div>
-        <h1 className="text-xl font-bold mb-2">Selfie Sent!</h1>
-        <p className="text-[#5a5a7a] text-sm">Your photo has been sent to the desktop. You can close this page now.</p>
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6 text-center">
+        <div className="text-6xl mb-4 text-success">&#10003;</div>
+        <h1 className="text-xl font-bold mb-2 text-on-surface">Selfie Sent!</h1>
+        <p className="text-on-surface-variant text-sm">
+          Your photo has been sent to the desktop. You can close this page now.
+        </p>
       </div>
     );
   }
@@ -188,20 +197,23 @@ function MobileStreamPageContent() {
   // ─── INSECURE / FALLBACK MODE ───
   if (status === "insecure" || fallbackMode) {
     return (
-      <div className="min-h-screen bg-[#0a0a14] flex flex-col items-center justify-center p-6 text-white">
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6">
+        {/* Brand */}
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6C3CE1] to-[#00D4AA] flex items-center justify-center text-sm font-bold">N</div>
-          <span className="font-bold bg-gradient-to-r from-[#6C3CE1] to-[#00D4AA] bg-clip-text text-transparent">NovaPay</span>
+          <div className="w-8 h-8 rounded-sm bg-primary flex items-center justify-center text-sm font-bold text-on-primary">
+            N
+          </div>
+          <span className="font-bold text-on-surface text-lg">NovaPay</span>
         </div>
 
         {!captured ? (
           <div className="text-center">
-            <div className="text-4xl mb-4">📸</div>
-            <h1 className="text-lg font-bold mb-2">Take a Selfie</h1>
-            <p className="text-[#5a5a7a] text-sm mb-2 max-w-xs">
+            <div className="text-4xl mb-4">&#128247;</div>
+            <h1 className="text-lg font-bold mb-2 text-on-surface">Take a Selfie</h1>
+            <p className="text-on-surface-variant text-sm mb-2 max-w-xs">
               Live streaming requires HTTPS. Use the button below to take a selfie with your camera app instead.
             </p>
-            <p className="text-[10px] text-[#3a3a5a] mb-6">
+            <p className="text-xs text-on-surface-variant/60 mb-6">
               Tip: For live streaming, access via HTTPS or localhost
             </p>
 
@@ -216,81 +228,129 @@ function MobileStreamPageContent() {
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="bg-gradient-to-r from-[#6C3CE1] to-[#00D4AA] px-8 py-3 rounded-xl font-semibold text-white text-sm"
+              className="gradient-btn px-8 py-3 rounded-sm font-semibold text-on-primary text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              📷 Open Camera & Take Selfie
+              Open Camera &amp; Take Selfie
             </button>
           </div>
         ) : (
           <div className="text-center">
-            <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-[#00D4AA] mx-auto mb-4">
-              <img src={captured} alt="Selfie" className="w-full h-full object-cover" />
+            {/* Preview circle: success ring on light bg */}
+            <div className="w-48 h-48 rounded-full overflow-hidden ring-4 ring-success mx-auto mb-4">
+              <img src={captured} alt="Selfie preview" className="w-full h-full object-cover" />
             </div>
-            <p className="text-[#00D4AA] text-sm font-medium mb-4">Looking good!</p>
-            <div className="flex gap-3">
-              <button onClick={() => { setCaptured(null); fileInputRef.current?.click(); }}
-                className="px-5 py-2.5 rounded-xl border border-white/10 text-[#7a7a9a] text-sm hover:text-white transition">
+            <p className="text-success text-sm font-medium mb-4">Looking good!</p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => { setCaptured(null); fileInputRef.current?.click(); }}
+                className="px-5 py-2.5 rounded-sm bg-surface-container-high text-on-surface-variant text-sm font-medium hover:bg-surface-container transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
                 Retake
               </button>
-              <button onClick={sendFallbackPhoto}
-                className="bg-gradient-to-r from-[#6C3CE1] to-[#00D4AA] px-6 py-2.5 rounded-xl font-semibold text-white text-sm">
+              <button
+                onClick={sendFallbackPhoto}
+                className="gradient-btn px-6 py-2.5 rounded-sm font-semibold text-on-primary text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
                 Send to Desktop
               </button>
             </div>
           </div>
         )}
 
-        {errorMsg && <p className="text-red-400 text-sm mt-4">{errorMsg}</p>}
+        {errorMsg && (
+          <p className="text-error text-sm mt-4" role="alert">{errorMsg}</p>
+        )}
       </div>
     );
   }
 
+  // ─── MAIN STREAM SCREEN ───
   return (
-    <div className="min-h-screen bg-[#0a0a14] flex flex-col items-center justify-center p-4 text-white">
+    <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-4">
+      {/* Brand */}
       <div className="flex items-center gap-2 mb-6">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6C3CE1] to-[#00D4AA] flex items-center justify-center text-sm font-bold">N</div>
-        <span className="font-bold bg-gradient-to-r from-[#6C3CE1] to-[#00D4AA] bg-clip-text text-transparent">NovaPay</span>
+        <div className="w-8 h-8 rounded-sm bg-primary flex items-center justify-center text-sm font-bold text-on-primary">
+          N
+        </div>
+        <span className="font-bold text-on-surface text-lg">NovaPay</span>
       </div>
 
       {status === "error" ? (
         <div className="text-center">
-          <div className="text-5xl mb-4">❌</div>
-          <h1 className="text-xl font-bold mb-2">Camera Error</h1>
-          <p className="text-[#5a5a7a] text-sm max-w-xs mb-4">{errorMsg}</p>
-          <div className="flex gap-3">
-            <button onClick={() => window.location.reload()} className="px-6 py-2 bg-[#6C3CE1] rounded-xl text-sm font-medium">Retry</button>
-            <button onClick={() => setFallbackMode(true)} className="px-6 py-2 border border-white/10 rounded-xl text-sm text-[#7a7a9a] hover:text-white transition">Use Photo Instead</button>
+          <div className="text-5xl mb-4">&#10007;</div>
+          <h1 className="text-xl font-bold mb-2 text-on-surface">Camera Error</h1>
+          <p className="text-on-surface-variant text-sm max-w-xs mb-4">{errorMsg}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-primary rounded-sm text-sm font-medium text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => setFallbackMode(true)}
+              className="px-6 py-2 bg-surface-container-high rounded-sm text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              Use Photo Instead
+            </button>
           </div>
         </div>
+
       ) : status === "done" ? (
         <div className="text-center">
-          <div className="text-5xl mb-4">✅</div>
-          <h1 className="text-xl font-bold mb-2">Stream Ended</h1>
-          <p className="text-[#5a5a7a] text-sm">The desktop has captured your selfie. You can close this page.</p>
+          <div className="text-5xl mb-4 text-success">&#10003;</div>
+          <h1 className="text-xl font-bold mb-2 text-on-surface">Stream Ended</h1>
+          <p className="text-on-surface-variant text-sm">
+            The desktop has captured your selfie. You can close this page.
+          </p>
         </div>
+
       ) : (
         <>
-          <p className="text-xs text-[#5a5a7a] uppercase tracking-wider mb-3">
-            {status === "idle" ? "Ready to start camera" : status === "starting" ? "Starting camera..." : "Live streaming to desktop"}
+          <p className="text-xs text-on-surface-variant uppercase tracking-wider mb-3">
+            {status === "idle"      ? "Ready to start camera"
+            : status === "starting" ? "Starting camera..."
+            : "Live streaming to desktop"}
           </p>
 
+          {/* Camera circle: primary ring */}
           <div className="relative">
-            <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-[#6C3CE1]">
-              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
+            <div className="w-64 h-64 rounded-full overflow-hidden ring-4 ring-primary">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover scale-x-[-1]"
+              />
             </div>
+
+            {/* Live indicator badge */}
             {status === "streaming" && (
-              <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-red-500/90 px-2 py-0.5 rounded-full">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                <span className="text-[10px] font-bold uppercase">Live</span>
+              <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-error/90 px-2 py-0.5 rounded-full">
+                <div className="w-2 h-2 bg-on-primary rounded-full animate-pulse" />
+                <span className="text-[10px] font-bold uppercase text-on-primary">Live</span>
               </div>
             )}
-            <div className="absolute inset-0 rounded-full border-4 border-[#6C3CE1]/20 animate-ping" style={{ animationDuration: "2s" }} />
+
+            {/* Pulse ring — GPU-accelerated opacity/transform */}
+            <div
+              className="absolute inset-0 rounded-full ring-4 ring-primary/20 animate-ping"
+              style={{ animationDuration: "2s" }}
+            />
           </div>
 
+          {/* Connection status indicator */}
           <div className="mt-4 flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${status === "streaming" ? "bg-[#00D4AA] animate-pulse" : "bg-[#6C3CE1] animate-pulse"}`} />
-            <span className="text-xs text-[#7a7a9a]">
-              {status === "streaming" ? "Connected - Desktop can see your face" : status === "starting" ? "Connecting..." : "Tap below to allow camera"}
+            <div
+              className={`w-2 h-2 rounded-full animate-pulse ${
+                status === "streaming" ? "bg-success" : "bg-primary"
+              }`}
+            />
+            <span className="text-xs text-on-surface-variant">
+              {status === "streaming" ? "Connected — Desktop can see your face"
+              : status === "starting"  ? "Connecting..."
+              : "Tap below to allow camera"}
             </span>
           </div>
 
@@ -298,20 +358,20 @@ function MobileStreamPageContent() {
             <div className="mt-5 flex flex-col items-center gap-3">
               <button
                 onClick={startStreaming}
-                className="bg-gradient-to-r from-[#6C3CE1] to-[#00D4AA] px-8 py-3 rounded-xl font-semibold text-white text-sm"
+                className="gradient-btn px-8 py-3 rounded-sm font-semibold text-on-primary text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Start Front Camera
               </button>
               <button
                 onClick={() => setFallbackMode(true)}
-                className="px-6 py-2 border border-white/10 rounded-xl text-sm text-[#7a7a9a] hover:text-white transition"
+                className="px-6 py-2 bg-surface-container-high rounded-sm text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Use Photo Instead
               </button>
             </div>
           )}
 
-          <p className="text-[11px] text-[#3a3a5a] mt-6 text-center max-w-xs">
+          <p className="text-xs text-on-surface-variant/60 mt-6 text-center max-w-xs">
             Keep your face centered in the circle. The desktop will capture the selfie from this live stream.
           </p>
         </>
